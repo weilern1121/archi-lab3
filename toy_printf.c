@@ -133,7 +133,7 @@ state_result init_default_state_handler(va_list args, int* out_printed_chars, st
 state_result init_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                 int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value){
 
-    return init_state_arr[*(state->fs)](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
+    return init_state_arr[(unsigned int)(*(state->fs))](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
 }
 
 state_result d_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
@@ -458,10 +458,8 @@ state_result A_c_state_handler(va_list args, int* out_printed_chars, state_args 
 state_result A_high_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                    int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value){
 
-    state_result stateResult;
-    stateResult.printed_chars=0;
     ++state->fs;
-        return A_state_arr[*(state->fs)](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
+        return A_state_arr[(unsigned int)(*(state->fs))](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
 }
 
 
@@ -648,7 +646,7 @@ state_result print_percent_state_handler(va_list args, int* out_printed_chars, s
     zero_pad=0->no need to 0-pad, zero_pad=1->need to pad with 0's
     0 ->input possitive , 1->input negative
     */
-    return state_arr[*(state->fs)](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
+    return state_arr[(unsigned int)(*(state->fs))](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
 }
 
 
@@ -662,10 +660,10 @@ state_result print_percent_state_handler(va_list args, int* out_printed_chars, s
 int toy_printf(char *fs, ...) {
     int j=0, chars_printed = 0, given_width=0,num_of_digs=0,zero_pad=0,if_input_minus=0, if_minus_left=0,int_value=0,d=0;
     state_args state;
-    char* string_value;
+    char* string_value="s";
     va_list args;
     state.fs=fs;
-    va_start(args, state.fs);
+    va_start(args, fs);
     state.cur_state=st_printf_init;
     state_result state_result;
 
@@ -676,6 +674,7 @@ int toy_printf(char *fs, ...) {
         init_state_arr[j] = init_default_state_handler;
 
     }
+
 
     //set the st_ special args
     state_arr[0]= init_state_handler;
@@ -717,6 +716,7 @@ int toy_printf(char *fs, ...) {
 
     //the init_state_arr have only one unique value ->for %
     init_state_arr[37] = percent_state_handler;
+
 
 
     for (; *(state.fs) != '\0'; ++(state.fs)) {
