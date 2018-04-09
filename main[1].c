@@ -2,15 +2,12 @@
 
 
 int main(int argc, char *argv[]) {
-    /*
-      int chars_printed = toy_printf("%x, %X\\n", 496351, 496351);
-    chars_printed += toy_printf("Welcome to \\c\\n");
-    chars_printed += toy_printf("Support for explicit\\N");
-    toy_printf("Printed %d chars\n", chars_printed);
-    */
+
 
     //---- part a+b --------
-    toy_printf("---------- part a+b ---------------\n");
+
+    toy_printf("\n---------- part a+b ---------------\n");
+
     int chars_printed=toy_printf("Hex unsigned: %x\n", 10);
     chars_printed+=toy_printf("Octal unsigned: %d\n", -1);
     chars_printed+=toy_printf("Octal unsigned: %d\n", 1);
@@ -34,8 +31,8 @@ int main(int argc, char *argv[]) {
     toy_printf("\n---------- part  d  ---------------\n");
 
     toy_printf("Non-padded string: %2s\n", "str");
-    toy_printf("Right-padded string: %4s\n", "str");
-    toy_printf("Left-added string: %-4s\n", "str");
+    toy_printf("Right-padded string: %6s\n", "str");
+    toy_printf("Left-added string: %-6s\n", "str");
     toy_printf("With numeric placeholders: %05d\n", -1);
     toy_printf("With numeric placeholders: %5d\n", -1);
     toy_printf("\n---------- end ---------------\n");
