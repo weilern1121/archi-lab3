@@ -61,6 +61,9 @@ state_result (*state_arr[128])(va_list args, int* out_printed_chars, state_args 
 state_result (*A_state_arr[128])(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                  int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value);
 
+state_result (*init_state_arr[128])(va_list args, int* out_printed_chars, state_args *state, int *int_value,
+                                 int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value);
+
 
 
 int print_int_helper(unsigned int n, int radix, const char *digit) {
@@ -113,26 +116,24 @@ state_result init_state_result_st_printf_percent(){
 
 state_result percent_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                    int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad, char *string_value) {
+
     state_result state_result=init_state_result_st_printf_percent();
     return  state_result;
 }
+state_result init_default_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
+                                   int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad, char *string_value) {
 
-//TODO - the handler funcs
+    state_result stateResult;
+    putchar(*state->fs);
+    stateResult.printed_chars=1;
+    stateResult.next_state=st_printf_init;
+    return  stateResult;
+}
+
 state_result init_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                 int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value){
-    state_result output;
-    output.printed_chars=0;
-    switch (*state->fs) {
-        case '%':
-            output=percent_state_handler(args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
-            return output;
-        default:
-            putchar(*state->fs);
-            //++(*out_printed_chars);
-            output.printed_chars++;
-    }
-    output.next_state=st_printf_init;
-    return output;
+
+    return init_state_arr[*(state->fs)](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
 }
 
 state_result d_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
@@ -640,17 +641,13 @@ state_result st_printf_error_handler(va_list args, int* out_printed_chars, state
 
 state_result print_percent_state_handler(va_list args, int* out_printed_chars, state_args *state, int *int_value,
                                          int *if_input_minus, int *num_of_digs, int *given_width, int *d, int *if_minus_left, int *zero_pad,char *string_value) {
-    //int int_value = 0;
-    //char *string_value;
-    //int d = 0, j = 0;
+
     /*
     index for locals:
     if_minus=0->positive->right padding, if_minus=1->negative->left padding
     zero_pad=0->no need to 0-pad, zero_pad=1->need to pad with 0's
     0 ->input possitive , 1->input negative
     */
-    state_result sr;
-
     return state_arr[*(state->fs)](args, out_printed_chars,state, int_value,if_input_minus,num_of_digs, given_width, d, if_minus_left, zero_pad,string_value);
 }
 
@@ -676,6 +673,7 @@ int toy_printf(char *fs, ...) {
     for (; j < 128; j++){
         state_arr[j] = error_state_handler;
         A_state_arr[j] = error_state_handler;
+        init_state_arr[j] = init_default_state_handler;
 
     }
 
@@ -716,6 +714,10 @@ int toy_printf(char *fs, ...) {
     A_state_arr[115] = A_s_state_handler;
     A_state_arr[117] =  A_u_state_handler;
     A_state_arr[99] =  A_c_state_handler;
+
+    //the init_state_arr have only one unique value ->for %
+    init_state_arr[37] = percent_state_handler;
+
 
     for (; *(state.fs) != '\0'; ++(state.fs)) {
         state_result=state_arr[state.cur_state]( args, &chars_printed, &state, &int_value,
